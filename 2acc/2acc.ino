@@ -7,6 +7,10 @@
 #define SDA_1 16
 #define SCL_1 17
 
+#define fullyOpen = -600
+#define fullyClosed = 50
+
+
 hw_timer_t *Timer0_Cfg = NULL;
 
 enum State {
@@ -42,7 +46,7 @@ int lastTenReads2[10] = {0};
 int sum1;
 int sum2;
 int iterator = 0;
-float oppenness = 0;
+float openness = 0;
 int step1Time = 0;
 float change = 0.0005;
 bool started = false;
@@ -78,55 +82,84 @@ void loop()
   iterator += 1;
   iterator = iterator %10;
 
-  if(sum1 < 150 && sum1 > 50){
-    if(sum2 < 150 && sum2 > 50){    // fully colsed
-      currentState = CLOSED;
-    }
-  }
-  else if(sum1 < -650 && sum2 < -650){ // fully open
-    currentState = OPEN;
-  }
-  if(currentState == CLOSED){                               
-    if(sum1 < 0 && sum1 > -10){ //starts oppening
-      if(currentState != OPENING1){
-        currentState = OPENING1;
-        timerRestart(Timer0_Cfg);
+  switch (currentState) {
+    case CLOSED:                          
+      if(sum1 < -10){ //starts oppening
+          currentState = OPENING1;
+          timerRestart(Timer0_Cfg);
       }
-    }
-  }
-  if(currentState == OPENING1){
-    oppenness = -(sum1+10)/21;
-    if(sum1 < -650){            //finnished opening first gate module
-    if(currentState == OPENING1){
-      currentState = OPENING2;
-      step1Time = timerRead(Timer0_Cfg);
-      change = (float)30 / step1Time;     //calibrate change
-    }
-  }
-  }
-  if(currentState == OPENING2){
-    oppenness = timerRead(Timer0_Cfg) * change;
-    if(sum2 < 0 && sum2 > -10){
-      currentState = OPENING3;
-    }
-    else if(oppenness >= 80){
-      currentState = ERROR;
-    }
-  }
-  if(currentState == OPENING3){
-    oppenness = -(sum2+10)/21 + 70;
-    if(oppenness > 100){
-      currentState = OPEN;
-    }
-  }
+      break;
+    case OPENING1:
+      openness = -(sum1+10)/21;
+      if(sum1 < -600){            //finnished opening first gate module
+          currentState = OPENING2;
+          step1Time = timerRead(Timer0_Cfg);
+          change = (float)30 / step1Time;     //calibrate change
+      }
+      break;
+    case OPENING2:
+      openness = timerRead(Timer0_Cfg) * change;
+      if(sum2 < 0 && sum2 > -10){
+        currentState = OPENING3;
+      }
+      else if(openness >= 80){
+        currentState = ERROR;
+      }
+      break;
+    case OPENING3:
+      openness = -(sum2+10)/21 + 70;
+      if(openness > 100){
+        currentState = OPEN;
+      }
+      break;
+    case ERROR:
+      Serial.println("error");
+      if(sum1 < 150 && sum1 > 50){
+        if(sum2 < 150 && sum2 > 50){    // fully colsed
+          currentState = CLOSED;
+          openness = 0;
+        }
+      }
+      if(sum1 < -600 && sum2 < -600){ // fully open
+        currentState = OPEN;
+        openness = 100;
+      }
+      break;
+    case OPEN:
+      if(sum2 > -600){ //starts closing
+          currentState = CLOSING1;
+          timerRestart(Timer0_Cfg);
+        }
+      break;
 
+    case CLOSING1:
+      openness = -(sum2+10)/21 + 70;
+      if(openness < 70){
+        currentState = CLOSING2;
+        step1Time = timerRead(Timer0_Cfg);
+        change = (float)30 / step1Time;
+      }
+      break;
+        
+    case CLOSING2:
+      openness = 100 - timerRead(Timer0_Cfg) * change;
+      if(sum1 > -600){
+        currentState = CLOSING3;
+      }
+      else if(openness <= 30){
+        currentState = ERROR;
+      }
+      break;
+    case CLOSING3:
+      openness = - (sum1+10)/21;
+      if(openness <= 0){
+        currentState = CLOSED;
+      }
+      break;
+  }
   if(currentState != ERROR){
-    Serial.print(" Oppenness: ");
-    Serial.println(oppenness);
-  }
-  else{
-    Serial.println("error");
-  }
-
-  
+    Serial.print(currentState);
+    Serial.print(" openness: ");
+    Serial.println(openness);
+  }  
 }
