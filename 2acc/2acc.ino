@@ -36,7 +36,7 @@ void setup()
   delay(1000);
   acc1 = new ACC(0,SDA_0,SCL_0);
   acc2 = new ACC(1,SDA_1,SCL_1);
-  // sockettt = new CUSTOM_SOCKET();
+  sockettt = new CUSTOM_SOCKET();
 Timer0_Cfg = timerBegin(10000);
 }
 
@@ -49,25 +49,6 @@ int iterator = 0;
 float openness = 0;
 int step1Time = 0;
 float change = 0.0005;
-bool started = false;
-bool finished = false;
-
-// void Accelerometer()
-// {
-//   char strBuf[100];
-//   strBuf[0] = 255;
-//   strBuf[1] = (char) acc1->readX();
-//   strBuf[2] = 255;
-// //  strBuf[2] = (char) acc1->readY();
-// //  strBuf[3] = (char) acc2->readX();
-// //  strBuf[4] = (char) acc2->readY();
-// //  strBuf[5] = 0;
-  
-//   Serial.println((int) strBuf[1]);
-//    sprintf(strBuf, "x,%3d,%3d,%3d,%3d,%3d,%3d;", acc1->readX(), acc1->readY(), acc1->readZ(), acc2->readX(), acc2->readY(), acc2->readZ());
-// //   Serial.println(strBuf);
-//   sockettt->send(strBuf);
-// }
 
 void loop()
 {
@@ -161,5 +142,9 @@ void loop()
     Serial.print(currentState);
     Serial.print(" openness: ");
     Serial.println(openness);
+
+    char strBuf[10];
+    sprintf(strBuf, "%f;", openness);
+    sockettt->send(strBuf);
   }  
 }
