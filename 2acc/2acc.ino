@@ -30,6 +30,7 @@ ACC *acc1;
 ACC *acc2;
 CUSTOM_SOCKET* sockettt;
 
+char stringMessage[16];
 void setup()
 {
   Serial.begin(115200);
@@ -143,8 +144,7 @@ void loop()
     Serial.print(" openness: ");
     Serial.println(openness);
 
-    char strBuf[10];
-    sprintf(strBuf, "%f;", openness);
-    sockettt->send(strBuf);
+    sprintf(stringMessage, "%1d: %.2f;",currentState, openness);
+    sockettt->send(stringMessage);
   }  
 }
