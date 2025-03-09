@@ -1,4 +1,4 @@
-<h3 align="center">
+<h5 align="center">
   <pre>
    _____                                  _                                                  
   / ____|                                | |                                                 
@@ -9,7 +9,7 @@
                           __/ |                                                              
                          |___/                                                                                                                    
 </pre>
-</h3>
+</h5>
 
 <h4 align="center">
 The garage door opening sensor uses two accelerometers to monitor the change in the angle of inclination of individual door segments, which allows for determining its current status.
