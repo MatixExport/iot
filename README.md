@@ -23,7 +23,9 @@ The garage door opening sensor uses two accelerometers to monitor the change in 
 </p>
 
 ## Connection schema
-![screenshot](schemat.png)
+<p align="center">
+	<img src="schemat.png" style="width:50%">
+</p>
 
 ## Overview
 
